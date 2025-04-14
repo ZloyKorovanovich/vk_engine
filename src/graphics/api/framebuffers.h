@@ -1,10 +1,8 @@
-#ifndef _GRAPHICS_FRAMEBUFFERS_INCLUDED
-#define _GRAPHICS_FRAMEBUFFERS_INCLUDED
+#ifndef _GRAPHICS_API_FRAMEBUFFERS_INCLUDED
+#define _GRAPHICS_API_FRAMEBUFFERS_INCLUDED
 // implements framebuffers storage
 
-#include <vulkan/vulkan.h>
-#include "device.h"
-#include "passes.h"
+#include "renderpasses.h"
 
 // describes framebuffers and layouts
 static struct {

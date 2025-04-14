@@ -1,17 +1,11 @@
 #ifndef _GRAPHICS_INCLUDED
 #define _GRAPHICS_INCLUDED
 // header includes all of the graphics-related headers
-// implements modifialbe general graphics control
+// implements modifiable general graphics control
 
-#include "setup/setup.h"
-#include "sync.h"
-#include "queues.h"
+#include "api/api.h"
+#include "frame_render/frame_render.h"
 #include "render_passes/render_passes.h"
-
-
-static struct {
-    VkCommandBuffer graphics_buffer;
-} graphics_cmd;
 
 // starts graphics lifetime
 void graphicsInit() {
@@ -43,36 +37,34 @@ void graphicsInit() {
     renderPassesCreate();
     // command buffers and command pools
     graphicsCmpoolsInit();
-    graphicsCmbufferCreate(
-        GRAPHICS_QUEUE_ID,
-        1,
-        &graphics_cmd.graphics_buffer
-    );
+
+    //BIG PROBLEMS HERE
+    graphicsCmdInit();
     // sync objects
     graphicsSyncInit();
 }
 
 // draw frame functions from interface meant to be inside of graphicsMainLoop
 void graphicsDraw(double time, double delta) {
-    vkWaitForFences(graphics_device.device, 1, &graphics_sync.in_flight_fence, VK_TRUE, UINT64_MAX);
-    vkResetFences(graphics_device.device, 1, &graphics_sync.in_flight_fence);
+    vkWaitForFences(graphics_device.device, 1, &graphics_sync.p_in_flight_fences[graphics_frame.frame_id], VK_TRUE, UINT64_MAX);
+    vkResetFences(graphics_device.device, 1, &graphics_sync.p_in_flight_fences[graphics_frame.frame_id]);
     uint32_t image_id;
     vkAcquireNextImageKHR(
         graphics_device.device, 
         graphics_swapchain.swapchain, 
         UINT64_MAX, 
-        graphics_sync.image_available_semaphore, 
+        graphics_sync.p_image_available_semaphores[graphics_frame.frame_id], 
         VK_NULL_HANDLE, 
         &image_id
     );
-    vkResetCommandBuffer(graphics_cmd.graphics_buffer, 0);
-    graphicsCmbufferBegin(graphics_cmd.graphics_buffer);
-    renderPassesExecute(graphics_cmd.graphics_buffer, image_id);
-    graphicsCmbufferEnd(graphics_cmd.graphics_buffer);
+    vkResetCommandBuffer(graphics_cmd.p_graphics_buffers[graphics_frame.frame_id], 0);
+    graphicsCmbufferBegin(graphics_cmd.p_graphics_buffers[graphics_frame.frame_id]);
+    renderPassesExecute(graphics_cmd.p_graphics_buffers[graphics_frame.frame_id], image_id);
+    graphicsCmbufferEnd(graphics_cmd.p_graphics_buffers[graphics_frame.frame_id]);
 
-    VkSemaphore p_wait_semaphores[1] = {graphics_sync.image_available_semaphore};
+    VkSemaphore p_wait_semaphores[1] = {graphics_sync.p_image_available_semaphores[graphics_frame.frame_id]};
     VkPipelineStageFlags p_wait_stages[1] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-    VkSemaphore p_signal_semaphores[1] = {graphics_sync.image_finished_semaphore};
+    VkSemaphore p_signal_semaphores[1] = {graphics_sync.p_image_finished_semaphores[graphics_frame.frame_id]};
 
     // need separation to header 
     // queue submition
@@ -82,10 +74,10 @@ void graphicsDraw(double time, double delta) {
     submit_info.pWaitSemaphores = p_wait_semaphores;
     submit_info.pWaitDstStageMask = p_wait_stages;
     submit_info.commandBufferCount = 1;
-    submit_info.pCommandBuffers = &graphics_cmd.graphics_buffer;
+    submit_info.pCommandBuffers = &graphics_cmd.p_graphics_buffers[graphics_frame.frame_id];
     submit_info.signalSemaphoreCount = 1;
     submit_info.pSignalSemaphores = p_signal_semaphores;
-    if (vkQueueSubmit(graphics_device.p_queues[GRAPHICS_QUEUE_ID], 1, &submit_info, graphics_sync.in_flight_fence) != VK_SUCCESS) {
+    if (vkQueueSubmit(graphics_device.p_queues[GRAPHICS_QUEUE_ID], 1, &submit_info, graphics_sync.p_in_flight_fences[graphics_frame.frame_id]) != VK_SUCCESS) {
         ERROR_FATAL("FAILED TO SUBMIT COMMAND BUFFER");
     }
 
@@ -101,6 +93,7 @@ void graphicsDraw(double time, double delta) {
     present_info.pImageIndices = &image_id;
     present_info.pResults = NULL;
     vkQueuePresentKHR(graphics_device.p_queues[graphics_device.p_present_indices[GRAPHICS_QUEUE_ID]], &present_info);
+    graphicsFrameNext();
 }
 
 // runs whole graphics of application
@@ -112,6 +105,7 @@ void graphicsRun() {
 // ends graphics lifetime
 void graphicsTerminate() {
     graphicsSyncTerminate();
+    graphicsCmdTerminate();
     graphicsCmpoolsTerminate();
     graphicsFramebuffersTerminate();
     graphicsPipelinesTerminate();

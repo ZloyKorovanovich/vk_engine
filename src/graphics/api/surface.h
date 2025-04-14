@@ -1,8 +1,7 @@
-#ifndef _GRAPHICS_SURFACE_INCLUDED
-#define _GRAPHICS_SURFACE_INCLUDED
+#ifndef _GRAPHICS_API_SURFACE_INCLUDED
+#define _GRAPHICS_API_SURFACE_INCLUDED
 // implements surface, which is necessary for presentation
 
-#include "window.h"
 #include "vulkan.h"
 
 // describes surface

@@ -1,10 +1,8 @@
-#ifndef _GRAPHICS_SHADERS_INCLUDED
-#define _GRAPHICS_SHADERS_INCLUDED
+#ifndef _GRAPHICS_API_SHADER_INCLUDED
+#define _GRAPHICS_API_SHADER_INCLUDED
 // implements functions for shader compilation and shader module creation
 // helps in render pipeline configuration
 
-#include <string.h>
-#include <stdbool.h>
 #include "device.h"
 #include "../../resources/resources.h"
 

@@ -1,8 +1,8 @@
-#ifndef _RENDER_PASS_PIPELINE_STAGES_INCLUDED
-#define _RENDER_PASS_PIPELINE_STAGES_INCLUDED
+#ifndef _GRAPHICS_RENDER_PASSES_PIPELINE_STAGES_INCLUDED
+#define _GRAPHICS_RENDER_PASSES_PIPELINE_STAGES_INCLUDED
 // provides with functions for easy pipeline creation
 
-#include "../setup/setup.h"
+#include "../api/api.h"
 
 // crteates shader stage and shader module
 // shader module should be cared untill pipeline is created

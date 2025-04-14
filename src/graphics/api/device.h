@@ -1,13 +1,9 @@
-#ifndef _GRAPHICS_DEVICE_INCLUDED
-#define _GRAPHICS_DEVICE_INCLUDED
+#ifndef _GRAPHICS_API_DEVICE_INCLUDED
+#define _GRAPHICS_API_DEVICE_INCLUDED
 // implements vulkan logical device aka VkDevice
 // also cares about logical queues
 
-#include <vulkan/vulkan.h>
-#include "vulkan.h"
 #include "gpu.h"
-
-#include "../../utilis/alloc.h"
 
 // describes graphics logical device and queues
 static struct {

@@ -1,12 +1,9 @@
-#ifndef _GRAPHICS_GPU_INCLUDED
-#define _GRAPHICS_GPU_INCLUDED
+#ifndef _GRAPHICS_API_GPU_INCLUDED
+#define _GRAPHICS_API_GPU_INCLUDED
 // implements usage of gpu aka physical device
 // this module does not have init and terminate functions, but is necessary to use for graphics
 // should be initialized with graphicsApiPickGPU fucntion call
 
-#include <vulkan/vulkan.h>
-#include <stdbool.h>
-#include "vulkan.h"
 #include "surface.h"
 
 // describes gpu

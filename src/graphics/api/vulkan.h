@@ -1,5 +1,5 @@
-#ifndef _GRAPHICS_VULKAN_INCLUDED
-#define _GRAPHICS_VULKAN_INCLUDED
+#ifndef _GRAPHICS_API_VULKAN_INCLUDED
+#define _GRAPHICS_API_VULKAN_INCLUDED
 // implements vulkan instance an validation layers
 // do "#define VALIDATION_LAYERS" before this header included to turn layers on
 

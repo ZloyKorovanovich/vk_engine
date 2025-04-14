@@ -1,12 +1,8 @@
-#ifndef _GRAPHICS_SWAPCHAIN_INCLUDED
-#define _GRAPHICS_SWAPCHAIN_INCLUDED
+#ifndef _GRAPHICS_API_SWAPCHAIN_INCLUDED
+#define _GRAPHICS_API_SWAPCHAIN_INCLUDED
 // implements swapchain
 
-#include <vulkan/vulkan.h>
-#include "surface.h"
 #include "device.h"
-#include "gpu.h"
-
 #include "../../utilis/imath.h"
 
 // describes swapchain and arrays of images

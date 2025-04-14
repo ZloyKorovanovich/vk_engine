@@ -1,5 +1,5 @@
-#ifndef _GRAPHICS_WINDOW_INCLUDED
-#define _GRAPHICS_WINDOW_INCLUDED
+#ifndef _GRAPHICS_API_WINDOW_INCLUDED
+#define _GRAPHICS_API_WINDOW_INCLUDED
 // implements window interface
 // also does makes a limited interface for interaction with glfw
 

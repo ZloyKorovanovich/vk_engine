@@ -1,8 +1,8 @@
-#ifndef _RENDER_PASSES_TRIANGLE_INCLUDED
-#define _RENDER_PASSES_TRAINGLE_INCLUDED
+#ifndef _GRAPHICS_RENDER_PASSES_TRIANGLE_INCLUDED
+#define _GRAPHICS_RENDER_PASSES_TRAINGLE_INCLUDED
 
 #include <vulkan/vulkan.h>
-#include "../setup/setup.h"
+#include "../api/api.h"
 #include "pipeline_stages.h"
 #include "../../utilis/error.h"
 
