@@ -1,0 +1,24 @@
+#ifndef _RENDER_PASSES_INCLUDED
+#define _RENDER_PASSES_INCLUDED
+
+#include <vulkan/vulkan.h>
+
+#include "triangle.h"
+
+// required for passes allocation
+const uint32_t passes_count = 1; 
+
+// creates and adds all render passes
+// change this function if you want to add custom pass or remove one
+void renderPassesCreate() {
+    renderPassesTriangleCreate();
+}
+
+void renderPassesExecute(
+    VkCommandBuffer cmbuffer, 
+    uint32_t frame_index
+) {
+    renderPassesTriangleExecute(cmbuffer, frame_index);
+}
+
+#endif

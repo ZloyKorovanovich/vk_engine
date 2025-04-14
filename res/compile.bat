@@ -1,0 +1,1 @@
+%~dp0shaders/compile_shaders.bat

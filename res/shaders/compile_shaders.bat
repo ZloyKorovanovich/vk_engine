@@ -1,0 +1,2 @@
+D:\VKSetUp\Vulkan\Bin\glslc.exe %~dp0glsl\triangle.vert -o %~dp0..\..\out\cres\shaders\triangle_vert.spv
+D:\VKSetUp\Vulkan\Bin\glslc.exe %~dp0glsl\triangle.frag -o %~dp0..\..\out\cres\shaders\triangle_frag.spv
