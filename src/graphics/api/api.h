@@ -16,7 +16,6 @@
 #include "gpu.h"
 #include "device.h"
 #include "swapchain.h"
-#include "shader.h"
 #include "passes.h"
 #include "pipelines.h"
 #include "framebuffers.h"

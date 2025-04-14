@@ -7,18 +7,18 @@
 // describes surface
 static struct {
     VkSurfaceKHR surface;
-} graphics_surface;
+} graphics_api_surface;
 
 // starts surface lifetime
-void graphicsSurfaceInit() {
-    if (glfwCreateWindowSurface(graphics_vulkan.instance, graphics_window.p_window, NULL, &graphics_surface.surface) != VK_SUCCESS) {
+void graphicsApiSurfaceInit() {
+    if (glfwCreateWindowSurface(graphics_api_vulkan.instance, graphics_api_window.p_window, NULL, &graphics_api_surface.surface) != VK_SUCCESS) {
         ERROR_FATAL("FAILED TO CREATE VULKAN SURFACE")
     }
 }
 
 // ends surface lifetime
-void graphicsSurfaceTerminate() {
-    vkDestroySurfaceKHR(graphics_vulkan.instance, graphics_surface.surface, NULL);
+void graphicsApiSurfaceTerminate() {
+    vkDestroySurfaceKHR(graphics_api_vulkan.instance, graphics_api_surface.surface, NULL);
 }
 
 #endif

@@ -9,11 +9,11 @@
 // describes gpu
 static struct {
     VkPhysicalDevice gpu;
-} graphics_gpu;
+} graphics_api_gpu;
 
 
 // returns true if extension is supported by gpu, else false
-bool graphicsGpuCheckExtension(
+bool graphicsApiGpuCheckExtension(
     const VkPhysicalDevice gpu,
     const char* p_extension
 ) {
@@ -60,7 +60,7 @@ bool graphicsGpuCheckExtensions(
 }
 
 // returns true if all of graphics families exist on gpu, else false
-bool graphicsGpuCheckQueueFamilies(
+bool graphicsApiGpuCheckQueueFamilies(
     const VkPhysicalDevice gpu,
     const uint32_t queue_family_count,
     const VkQueueFlagBits* p_queue_family_flags
@@ -91,7 +91,7 @@ bool graphicsGpuCheckQueueFamilies(
     // check present queue support (required for presentation)
     VkBool32 present_supproted;
     for(uint32_t i = 0; i < families_count; i++) {
-        vkGetPhysicalDeviceSurfaceSupportKHR(gpu, i, graphics_surface.surface, &present_supproted);
+        vkGetPhysicalDeviceSurfaceSupportKHR(gpu, i, graphics_api_surface.surface, &present_supproted);
         if(present_supproted) {
             return true;
         }
@@ -100,7 +100,7 @@ bool graphicsGpuCheckQueueFamilies(
 }
 
 // returns true if swapchain is supported by gpu, else false
-bool graphicsGpuCheckSwapchain(
+bool graphicsApiGpuCheckSwapchain(
     const VkPhysicalDevice gpu
 ) {
     // get device extensions
@@ -121,14 +121,14 @@ bool graphicsGpuCheckSwapchain(
     }
     // get supported format and mode count
     uint32_t format_count, mode_count;
-    vkGetPhysicalDeviceSurfaceFormatsKHR(gpu, graphics_surface.surface, &format_count, NULL);
-    vkGetPhysicalDeviceSurfacePresentModesKHR(gpu, graphics_surface.surface, &mode_count, NULL);
+    vkGetPhysicalDeviceSurfaceFormatsKHR(gpu, graphics_api_surface.surface, &format_count, NULL);
+    vkGetPhysicalDeviceSurfacePresentModesKHR(gpu, graphics_api_surface.surface, &mode_count, NULL);
     // check if swapchain supports any mode and format
     return !((format_count == 0) && (mode_count == 0));
 }
 
 // default function that helps to select best gpu
-uint32_t graphicsGpuEvaluateDefault(
+uint32_t graphicsApiGpuEvaluateDefault(
     const VkPhysicalDevice gpu
 ) {
     // get device information
@@ -145,7 +145,7 @@ uint32_t graphicsGpuEvaluateDefault(
 }
 
 // returns true if those queues exist on gpu, and finds there information, else returns false
-bool graphicsGpuFindQueueIndices(
+bool graphicsApiGpuFindQueueIndices(
     const uint32_t queue_count,
     const VkQueueFlagBits* p_queue_flags,
     uint32_t* p_queue_family_indices,
@@ -153,9 +153,9 @@ bool graphicsGpuFindQueueIndices(
 ) {
     // get gpu queue families
     uint32_t families_count;
-    vkGetPhysicalDeviceQueueFamilyProperties(graphics_gpu.gpu, &families_count, NULL);
+    vkGetPhysicalDeviceQueueFamilyProperties(graphics_api_gpu.gpu, &families_count, NULL);
     VkQueueFamilyProperties p_families[families_count];
-    vkGetPhysicalDeviceQueueFamilyProperties(graphics_gpu.gpu, &families_count, p_families);
+    vkGetPhysicalDeviceQueueFamilyProperties(graphics_api_gpu.gpu, &families_count, p_families);
 
     // find families and local indices
     for(uint32_t i = 0; i < queue_count; i++) {
@@ -185,19 +185,19 @@ bool graphicsGpuFindQueueIndices(
 }
 
 // finds queue that supports presentation
-bool graphicsGpuFindPresentQueue(
+bool graphicsApiGpuFindPresentQueue(
     uint32_t* const p_family_id,
     uint32_t* const p_local_id
 ) {
     // get gpu queue families
     uint32_t families_count;
-    vkGetPhysicalDeviceQueueFamilyProperties(graphics_gpu.gpu, &families_count, NULL);
+    vkGetPhysicalDeviceQueueFamilyProperties(graphics_api_gpu.gpu, &families_count, NULL);
     VkQueueFamilyProperties p_families[families_count];
-    vkGetPhysicalDeviceQueueFamilyProperties(graphics_gpu.gpu, &families_count, p_families);
+    vkGetPhysicalDeviceQueueFamilyProperties(graphics_api_gpu.gpu, &families_count, p_families);
     // find family, that supports presentation
     VkBool32 present_supproted;
     for(uint32_t i = 0; i < families_count; i++) {
-        vkGetPhysicalDeviceSurfaceSupportKHR(graphics_gpu.gpu, i, graphics_surface.surface, &present_supproted);
+        vkGetPhysicalDeviceSurfaceSupportKHR(graphics_api_gpu.gpu, i, graphics_api_surface.surface, &present_supproted);
         if(present_supproted) {
             *p_family_id = i;
             *p_local_id = 0; // use 1-st queue from family (can be different)
@@ -208,38 +208,38 @@ bool graphicsGpuFindPresentQueue(
 }
 
 // selects suitable gpu from a list of available based on evaluation function (for default use graphicsApiGpuEvaluateDefault())
-void graphicsGPUPick(
+void graphicsApiGPUPick(
     const uint32_t required_queue_family_count,
     const VkQueueFlagBits* p_queue_family_flags,
     uint32_t (*p_evaluate)(const VkPhysicalDevice)
 ) {
     uint32_t devices_count = 0;
-    vkEnumeratePhysicalDevices(graphics_vulkan.instance, &devices_count, NULL);
+    vkEnumeratePhysicalDevices(graphics_api_vulkan.instance, &devices_count, NULL);
     if (devices_count == 0) {
         ERROR_FATAL("FAILED TO FIND ANY GPU")
     }
     VkPhysicalDevice p_devices[devices_count];
-    vkEnumeratePhysicalDevices(graphics_vulkan.instance, &devices_count, p_devices);
+    vkEnumeratePhysicalDevices(graphics_api_vulkan.instance, &devices_count, p_devices);
     
     uint32_t best_score = 0;
     for(uint32_t i = 0; i < devices_count; i++) {
-        if(!graphicsGpuCheckQueueFamilies(
+        if(!graphicsApiGpuCheckQueueFamilies(
             p_devices[i], 
             required_queue_family_count, 
             p_queue_family_flags
         )) continue;
 
-        if(!graphicsGpuCheckSwapchain(
+        if(!graphicsApiGpuCheckSwapchain(
             p_devices[i]
         )) continue;
 
         uint32_t score = (*p_evaluate)(p_devices[i]);
         if(score >= best_score) {
             best_score = score;
-            graphics_gpu.gpu = p_devices[i];
+            graphics_api_gpu.gpu = p_devices[i];
         }
     }
-    if (graphics_gpu.gpu == VK_NULL_HANDLE) {
+    if (graphics_api_gpu.gpu == VK_NULL_HANDLE) {
         ERROR_FATAL("NO GPU IS SUITABLE")
     }
 }

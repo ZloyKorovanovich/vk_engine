@@ -3,7 +3,7 @@
 
 #include <vulkan/vulkan.h>
 #include "../api/api.h"
-#include "pipeline_stages.h"
+#include "../utilis/utilis.h"
 #include "../../utilis/error.h"
 
 static struct {
@@ -23,7 +23,7 @@ void renderPassesTrianglePass(
     color_attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     color_attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     color_attachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-    color_attachment.format = graphics_swapchain.format.format;
+    color_attachment.format = graphics_api_swapchain.format.format;
 
     VkAttachmentReference color_attachment_reference = (VkAttachmentReference){0};
     color_attachment_reference.attachment = 0;
@@ -70,7 +70,7 @@ void renderPipelineTriangle(
     VkShaderModule p_shader_modules[2];
     VkPipelineShaderStageCreateInfo p_shader_stages[2];
     for(uint32_t i = 0; i < shader_count; i++) {
-        if(!renderPassesShaderStage(
+        if(!graphicsUtilisStagesShader(
             "main",
             pp_shader_files[i],
             p_shader_flags[i],
@@ -81,19 +81,18 @@ void renderPipelineTriangle(
         }
     }
 
-    VkPipelineLayoutCreateInfo layout_info = renderPassesDefaultPipelineLayout();
-    if (vkCreatePipelineLayout(graphics_device.device, &layout_info, NULL, p_layout) != VK_SUCCESS) {
+    VkPipelineLayoutCreateInfo layout_info = graphicsUtilisPipelineLayout();
+    if (vkCreatePipelineLayout(graphics_api_device.device, &layout_info, NULL, p_layout) != VK_SUCCESS) {
         ERROR_FATAL("FAILED TO CTRATE TRAINGLE PIPELINE LAYOUT")
     }
 
-    VkPipelineVertexInputStateCreateInfo vertex_input_state = renderPassesDefaultVertexInputState();
-    VkPipelineInputAssemblyStateCreateInfo assembly_state = renderPassesDefaultAssemblyState();
-    VkPipelineRasterizationStateCreateInfo rasterization_state = renderPassesDefaultRasterizationState();
-    VkPipelineMultisampleStateCreateInfo multisample_state = renderPassesDefaultMultisampleState();
-    VkPipelineViewportStateCreateInfo viewport_state = renderPassesDefaultViewportState();
-    VkPipelineColorBlendStateCreateInfo color_blend_state = renderPassesDefaultBlendState();
-    VkPipelineDynamicStateCreateInfo dynamic_state = renderPassesDefaultDynamicState();
-
+    VkPipelineVertexInputStateCreateInfo vertex_input_state = graphicsUtilisStagesVertexInput();
+    VkPipelineInputAssemblyStateCreateInfo assembly_state = graphicsUtilisStagesAssembly();
+    VkPipelineRasterizationStateCreateInfo rasterization_state = graphicsUtilisStagesRasterization();
+    VkPipelineMultisampleStateCreateInfo multisample_state = graphicsUtilisStagesMultisample();
+    VkPipelineViewportStateCreateInfo viewport_state = graphicsUtilisStagesViewport();
+    VkPipelineColorBlendStateCreateInfo color_blend_state = graphicsUtilisStagesBlend();
+    VkPipelineDynamicStateCreateInfo dynamic_state = graphicsUtilisStagesDynamic();
 
     VkGraphicsPipelineCreateInfo pipeline_info = (VkGraphicsPipelineCreateInfo){0};
     pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -113,22 +112,22 @@ void renderPipelineTriangle(
     pipeline_info.basePipelineHandle = VK_NULL_HANDLE;
     pipeline_info.basePipelineIndex = -1;
 
-    if (vkCreateGraphicsPipelines(graphics_device.device, VK_NULL_HANDLE, 1, &pipeline_info, NULL, p_pipeline) != VK_SUCCESS) {
+    if (vkCreateGraphicsPipelines(graphics_api_device.device, VK_NULL_HANDLE, 1, &pipeline_info, NULL, p_pipeline) != VK_SUCCESS) {
         ERROR_FATAL("FAILED TO CREATE TRIANGLE PIPELINE")
     }
 
     for(uint32_t i = 0; i < shader_count; i++) {
-        vkDestroyShaderModule(graphics_device.device, p_shader_modules[i], NULL);
+        vkDestroyShaderModule(graphics_api_device.device, p_shader_modules[i], NULL);
     }
 }
 
 
 void renderPassesTriangleCreate() {
-    triangle_pass.triangle_render_pass_id = graphicsPassesAdd(&renderPassesTrianglePass);
-    graphicsPipelinesBindRenderPass(triangle_pass.triangle_render_pass_id, 0);
-    triangle_pass.traingle_pipeline_id = graphicsPipelinesAdd(&renderPipelineTriangle);
-    graphicsFramebuffersBindRenderPass(graphicsPassesCurrentId());
-    graphicsFramebuffersAdd();
+    triangle_pass.triangle_render_pass_id = graphicsApiPassesAdd(&renderPassesTrianglePass);
+    graphicsApiPipelinesBindRenderPass(triangle_pass.triangle_render_pass_id, 0);
+    triangle_pass.traingle_pipeline_id = graphicsApiPipelinesAdd(&renderPipelineTriangle);
+    graphicsApiFramebuffersBindRenderPass(graphicsApiPassesCurrentId());
+    graphicsApiFramebuffersAdd();
 }
 
 void renderPassesTriangleExecute(
@@ -137,11 +136,11 @@ void renderPassesTriangleExecute(
 ) {
     VkRenderPassBeginInfo pass_info = (VkRenderPassBeginInfo){0};
     pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    pass_info.renderPass = graphics_passes.p_passes[triangle_pass.triangle_render_pass_id];
-    pass_info.framebuffer = graphics_framebuffers.p_framebuffers[frame_index];
+    pass_info.renderPass = graphics_api_passes.p_passes[triangle_pass.triangle_render_pass_id];
+    pass_info.framebuffer = graphics_api_framebuffers.p_framebuffers[frame_index];
 
     pass_info.renderArea.offset = (VkOffset2D){0.0f, 0.0f};
-    pass_info.renderArea.extent = graphics_swapchain.extent;
+    pass_info.renderArea.extent = graphics_api_swapchain.extent;
 
     VkClearValue clear_color = (VkClearValue){0};
     clear_color.color = (VkClearColorValue){{0.0f, 0.0f, 0.0f, 1.0f}};
@@ -150,9 +149,9 @@ void renderPassesTriangleExecute(
     pass_info.pClearValues = &clear_color;
     
     vkCmdBeginRenderPass(cmbuffer, &pass_info, VK_SUBPASS_CONTENTS_INLINE);
-    vkCmdBindPipeline(cmbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipelines.p_pipelines[triangle_pass.traingle_pipeline_id]);
-    vkCmdSetViewport(cmbuffer, 0, 1, &graphics_swapchain.viewport);
-    vkCmdSetScissor(cmbuffer, 0, 1, &graphics_swapchain.scissors);
+    vkCmdBindPipeline(cmbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_api_pipelines.p_pipelines[triangle_pass.traingle_pipeline_id]);
+    vkCmdSetViewport(cmbuffer, 0, 1, &graphics_api_swapchain.viewport);
+    vkCmdSetScissor(cmbuffer, 0, 1, &graphics_api_swapchain.scissors);
 
     vkCmdDraw(cmbuffer, 3, 1, 0, 0);
     vkCmdEndRenderPass(cmbuffer);

@@ -12,12 +12,12 @@ static struct {
     VkQueue* p_queues; // element i points to queue it self
     uint32_t* p_queue_families; // element i points to family index of queue
     uint32_t* p_present_indices; // element i points to best queue for presentation (best case same queue as i)
-} graphics_device;
+} graphics_api_device;
 
 
 // finds information about unique families and how many queues they should have
 // if arrays are NULL, sets only queue_count
-void graphicsDeviceFindUniqueFamilies(
+void graphicsApiDeviceFindUniqueFamilies(
     const uint32_t queue_count,
     const uint32_t* p_families,
     uint32_t* p_unique_family_count,
@@ -56,7 +56,7 @@ void graphicsDeviceFindUniqueFamilies(
 }
 
 // starts graphics device lifetime
-void graphicsDeviceInit(
+void graphicsApiDeviceInit(
     const uint32_t queue_count,
     const VkQueueFlagBits* p_queue_flags,
     const VkPhysicalDeviceFeatures* p_device_features,
@@ -67,7 +67,7 @@ void graphicsDeviceInit(
     uint32_t total_queue_count = queue_count + 1; // present queue treated always separately
     uint32_t p_queue_family_indices[total_queue_count];
     uint32_t p_queue_local_indices[total_queue_count];
-    graphicsGpuFindQueueIndices(
+    graphicsApiGpuFindQueueIndices(
         queue_count,
         p_queue_flags,
         p_queue_family_indices,
@@ -75,7 +75,7 @@ void graphicsDeviceInit(
     );
     // find present queue
     uint32_t p_queue_present_indices[total_queue_count];
-    graphicsGpuFindPresentQueue(
+    graphicsApiGpuFindPresentQueue(
         p_queue_family_indices + queue_count,
         p_queue_local_indices + queue_count
     );
@@ -83,9 +83,9 @@ void graphicsDeviceInit(
     for(uint32_t i = 0; i < queue_count; i++) {
         VkBool32 is_present;
         vkGetPhysicalDeviceSurfaceSupportKHR(
-            graphics_gpu.gpu, 
+            graphics_api_gpu.gpu, 
             p_queue_family_indices[i], 
-            graphics_surface.surface,
+            graphics_api_surface.surface,
             &is_present
         );
         if(is_present) {
@@ -100,7 +100,7 @@ void graphicsDeviceInit(
     uint32_t unique_queue_count;
     uint32_t p_unique_families[total_queue_count];
     uint32_t p_unique_family_index_counts[total_queue_count];
-    graphicsDeviceFindUniqueFamilies(
+    graphicsApiDeviceFindUniqueFamilies(
         total_queue_count,
         p_queue_family_indices,
         &unique_queue_count,
@@ -142,29 +142,29 @@ void graphicsDeviceInit(
     create_info.enabledExtensionCount = device_extension_full_count;
     create_info.ppEnabledExtensionNames = pp_device_extensions_full;
 
-    if (vkCreateDevice(graphics_gpu.gpu, &create_info, NULL, &graphics_device.device) != VK_SUCCESS) {
+    if (vkCreateDevice(graphics_api_gpu.gpu, &create_info, NULL, &graphics_api_device.device) != VK_SUCCESS) {
         ERROR_FATAL("FAILED TO CREATE LOGICAL DEVICE")
     }
     // allocate queue arrays on heap
-    graphics_device.queue_count = total_queue_count;
-    graphics_device.p_queues = allocMalloc(graphics_device.queue_count * sizeof(VkQueue));
-    graphics_device.p_queue_families = allocMalloc(graphics_device.queue_count * sizeof(uint32_t));
-    graphics_device.p_present_indices = allocMalloc(graphics_device.queue_count * sizeof(uint32_t));
+    graphics_api_device.queue_count = total_queue_count;
+    graphics_api_device.p_queues = allocMalloc(graphics_api_device.queue_count * sizeof(VkQueue));
+    graphics_api_device.p_queue_families = allocMalloc(graphics_api_device.queue_count * sizeof(uint32_t));
+    graphics_api_device.p_present_indices = allocMalloc(graphics_api_device.queue_count * sizeof(uint32_t));
     // copy from stack queue arrays to heap queue arrays
-    for(uint32_t i = 0; i < graphics_device.queue_count; i++) {
-        vkGetDeviceQueue(graphics_device.device, p_queue_family_indices[i], p_queue_local_indices[i], graphics_device.p_queues + i);
-        graphics_device.p_queue_families[i] = p_queue_family_indices[i];
-        graphics_device.p_present_indices[i] = p_queue_present_indices[i];
+    for(uint32_t i = 0; i < graphics_api_device.queue_count; i++) {
+        vkGetDeviceQueue(graphics_api_device.device, p_queue_family_indices[i], p_queue_local_indices[i], graphics_api_device.p_queues + i);
+        graphics_api_device.p_queue_families[i] = p_queue_family_indices[i];
+        graphics_api_device.p_present_indices[i] = p_queue_present_indices[i];
     }
 }
 
 // ends graphics device lifetime
-void graphicsDeviceTerminate() {
+void graphicsApiDeviceTerminate() {
     // free queue arrays
-    allocFree(graphics_device.p_queues);
-    allocFree(graphics_device.p_queue_families);
-    allocFree(graphics_device.p_present_indices);
-    vkDestroyDevice(graphics_device.device, NULL);
+    allocFree(graphics_api_device.p_queues);
+    allocFree(graphics_api_device.p_queue_families);
+    allocFree(graphics_api_device.p_present_indices);
+    vkDestroyDevice(graphics_api_device.device, NULL);
 }
 
 #endif

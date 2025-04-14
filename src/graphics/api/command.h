@@ -9,53 +9,53 @@
 static struct {
     uint32_t cmpool_count;
     VkCommandPool* p_cmpools;
-} graphics_cmpools;
+} graphics_api_cmpools;
 
 // starts cmpools lifetime
-void graphicsCmpoolsInit() {
+void graphicsApiCmpoolsInit() {
     // allocate cmpools, 1 cmpool per queue
-    graphics_cmpools.cmpool_count = graphics_device.queue_count;
-    graphics_cmpools.p_cmpools = (VkCommandPool*)allocMalloc(graphics_cmpools.cmpool_count * sizeof(VkCommandPool));
+    graphics_api_cmpools.cmpool_count = graphics_api_device.queue_count;
+    graphics_api_cmpools.p_cmpools = (VkCommandPool*)allocMalloc(graphics_api_cmpools.cmpool_count * sizeof(VkCommandPool));
     // create cmpools
-    for(uint32_t i = 0; i < graphics_cmpools.cmpool_count; i++) {
+    for(uint32_t i = 0; i < graphics_api_cmpools.cmpool_count; i++) {
         VkCommandPoolCreateInfo pool_info = (VkCommandPoolCreateInfo){0};
         pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         pool_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-        pool_info.queueFamilyIndex = graphics_device.p_queue_families[i];
+        pool_info.queueFamilyIndex = graphics_api_device.p_queue_families[i];
     
-        if (vkCreateCommandPool(graphics_device.device, &pool_info, NULL, graphics_cmpools.p_cmpools + i) != VK_SUCCESS) {
+        if (vkCreateCommandPool(graphics_api_device.device, &pool_info, NULL, graphics_api_cmpools.p_cmpools + i) != VK_SUCCESS) {
             ERROR_FATAL("FAILED TO CREATE COMMAND POOL");
         }
     }
 }
 
 // ends cmpools lifetime
-void graphicsCmpoolsTerminate() {
-    for(uint32_t i = 0; i < graphics_cmpools.cmpool_count; i++) {
-        vkDestroyCommandPool(graphics_device.device, graphics_cmpools.p_cmpools[i], NULL);
+void graphicsApiCmpoolsTerminate() {
+    for(uint32_t i = 0; i < graphics_api_cmpools.cmpool_count; i++) {
+        vkDestroyCommandPool(graphics_api_device.device, graphics_api_cmpools.p_cmpools[i], NULL);
     }
-    allocFree(graphics_cmpools.p_cmpools);
+    allocFree(graphics_api_cmpools.p_cmpools);
 }
 
 
 // allocates command buffer in specified command pool
-void graphicsCmbufferCreate(
+void graphicsApiCmbufferCreate(
     const uint32_t cmpool_id,
     const uint32_t cmbuffer_count,
     VkCommandBuffer* const p_cmbuffers
 ) {
     VkCommandBufferAllocateInfo alloc_info = (VkCommandBufferAllocateInfo){0};
     alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    alloc_info.commandPool = graphics_cmpools.p_cmpools[cmpool_id];
+    alloc_info.commandPool = graphics_api_cmpools.p_cmpools[cmpool_id];
     alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     alloc_info.commandBufferCount = cmbuffer_count;
-    if (vkAllocateCommandBuffers(graphics_device.device, &alloc_info, p_cmbuffers) != VK_SUCCESS) {
+    if (vkAllocateCommandBuffers(graphics_api_device.device, &alloc_info, p_cmbuffers) != VK_SUCCESS) {
         ERROR_FATAL("FAILED TO ALLOCATE CMBUFFERS!")
     }
 }
 
 // starts command buffer record
-void graphicsCmbufferBegin(
+void graphicsApiCmbufferBegin(
     const VkCommandBuffer cmbuffer
 ) {
     VkCommandBufferBeginInfo begin_info = (VkCommandBufferBeginInfo){0};
@@ -69,7 +69,7 @@ void graphicsCmbufferBegin(
 }
 
 // ends command buffer record
-void graphicsCmbufferEnd(
+void graphicsApiCmbufferEnd(
     const VkCommandBuffer cmbuffer
 ) {
     if (vkEndCommandBuffer(cmbuffer) != VK_SUCCESS) {

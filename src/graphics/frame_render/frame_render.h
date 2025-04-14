@@ -45,7 +45,7 @@ void graphicsCmdInit() {
     // allocate buffer arrays for all frames
     graphics_cmd.buffer_count = graphics_frame.max_frames_in_flight;
     graphics_cmd.p_graphics_buffers = (VkCommandBuffer*)allocMalloc(graphics_cmd.buffer_count * sizeof(VkCommandBuffer));
-    graphicsCmbufferCreate(
+    graphicsApiCmbufferCreate(
         GRAPHICS_QUEUE_ID,
         graphics_cmd.buffer_count,
         graphics_cmd.p_graphics_buffers
@@ -73,9 +73,9 @@ void graphicsSyncInit() {
     fence_info.flags = VK_FENCE_CREATE_SIGNALED_BIT; // starting from signaled state
     // create sync objects
     for(uint32_t i = 0; i < graphics_sync.frames_count; i++) {
-        if (vkCreateSemaphore(graphics_device.device, &semaphore_info, NULL, graphics_sync.p_image_available_semaphores + i) != VK_SUCCESS ||
-            vkCreateSemaphore(graphics_device.device, &semaphore_info, NULL, graphics_sync.p_image_finished_semaphores + i) != VK_SUCCESS ||
-            vkCreateFence(graphics_device.device, &fence_info, NULL, graphics_sync.p_in_flight_fences + i) != VK_SUCCESS) {
+        if (vkCreateSemaphore(graphics_api_device.device, &semaphore_info, NULL, graphics_sync.p_image_available_semaphores + i) != VK_SUCCESS ||
+            vkCreateSemaphore(graphics_api_device.device, &semaphore_info, NULL, graphics_sync.p_image_finished_semaphores + i) != VK_SUCCESS ||
+            vkCreateFence(graphics_api_device.device, &fence_info, NULL, graphics_sync.p_in_flight_fences + i) != VK_SUCCESS) {
             ERROR_FATAL("FAILED TO CREATE GLOBAL SYNC OBJECTS")
         }
     }
@@ -84,9 +84,9 @@ void graphicsSyncInit() {
 // ends lifetime of sync objects
 void graphicsSyncTerminate() {
     for(uint32_t i = 0; i < graphics_sync.frames_count; i++) {
-        vkDestroySemaphore(graphics_device.device, graphics_sync.p_image_available_semaphores[i], NULL);
-        vkDestroySemaphore(graphics_device.device, graphics_sync.p_image_finished_semaphores[i], NULL);
-        vkDestroyFence(graphics_device.device, graphics_sync.p_in_flight_fences[i], NULL);
+        vkDestroySemaphore(graphics_api_device.device, graphics_sync.p_image_available_semaphores[i], NULL);
+        vkDestroySemaphore(graphics_api_device.device, graphics_sync.p_image_finished_semaphores[i], NULL);
+        vkDestroyFence(graphics_api_device.device, graphics_sync.p_in_flight_fences[i], NULL);
     }
     allocFree(graphics_sync.p_image_available_semaphores);
     allocFree(graphics_sync.p_image_finished_semaphores);
