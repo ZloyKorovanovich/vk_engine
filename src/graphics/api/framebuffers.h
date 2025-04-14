@@ -2,7 +2,7 @@
 #define _GRAPHICS_API_FRAMEBUFFERS_INCLUDED
 // implements framebuffers storage
 
-#include "renderpasses.h"
+#include "passes.h"
 
 // describes framebuffers and layouts
 static struct {
