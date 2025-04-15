@@ -1,78 +1,82 @@
 #ifndef _GRAPHICS_INCLUDED
 #define _GRAPHICS_INCLUDED
 // header includes all of the graphics-related headers
-// implements modifialbe general graphics control
+// implements modifiable general graphics control
 
-#include "setup/setup.h"
-#include "sync.h"
-#include "queues.h"
+#include "api/api.h"
+#include "render_objects/render_objects.h"
 #include "render_passes/render_passes.h"
 
+// describes render queues requested from gpu
+const struct {
+    const uint32_t queue_count;
+    const VkQueueFlagBits* p_queue_flags;
+} graphics_required_queues = {
+    .queue_count = 3,
+    .p_queue_flags = (VkQueueFlagBits[]){VK_QUEUE_GRAPHICS_BIT, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_TRANSFER_BIT}
+};
 
-static struct {
-    VkCommandBuffer graphics_buffer;
-} graphics_cmd;
+// queue management helpers
+#define GRAPHICS_QUEUE_ID 0
+#define COMPUTE_QUEUE_ID 1
+#define TRANSFER_QUEUE_ID 2
+#define PRESENT_QUEUE_ID (graphics_required_queues.queue_count + 1)
 
 // starts graphics lifetime
 void graphicsInit() {
     // setup
-    graphicsWindowInit(800, 600, "vk_engine");
-    graphicsVulkanInit();
-    graphicsSurfaceInit();
-    graphicsGPUPick(
+    graphicsApiWindowInit(800, 600, "vk_engine");
+    graphicsApiVulkanInit();
+    graphicsApiSurfaceInit();
+    graphicsApiGPUPick(
         graphics_required_queues.queue_count, 
         graphics_required_queues.p_queue_flags, 
-        &graphicsGpuEvaluateDefault
+        &graphicsApiGpuEvaluateDefault
     );
-    graphicsDeviceInit(
+    graphicsApiDeviceInit(
         graphics_required_queues.queue_count, 
         graphics_required_queues.p_queue_flags, 
         NULL, 
         0, 
         NULL
     );
-    graphicsSwapchainInit(
+    graphicsApiSwapchainInit(
         VK_SHARING_MODE_EXCLUSIVE, 
-        &graphicsSwapchainDefaultSelectFormat, 
-        &graphicsSwapchainDefaultSelectMode
+        &graphicsApiSwapchainDefaultSelectFormat, 
+        &graphicsApiSwapchainDefaultSelectMode
     );
     // render passes
-    graphicsPassesInit(passes_count);
-    graphicsPipelinesInit(1);
-    graphicsFramebuffersInit(1);
+    graphicsApiPassesInit(passes_count);
+    graphicsApiPipelinesInit(1);
+    graphicsApiFramebuffersInit(1);
     renderPassesCreate();
-    // command buffers and command pools
-    graphicsCmpoolsInit();
-    graphicsCmbufferCreate(
-        GRAPHICS_QUEUE_ID,
-        1,
-        &graphics_cmd.graphics_buffer
-    );
-    // sync objects
-    graphicsSyncInit();
+    // command pools
+    graphicsApiCmpoolsInit();
+
+    graphicsRenderObjectsInit(GRAPHICS_QUEUE_ID);
 }
 
 // draw frame functions from interface meant to be inside of graphicsMainLoop
 void graphicsDraw(double time, double delta) {
-    vkWaitForFences(graphics_device.device, 1, &graphics_sync.in_flight_fence, VK_TRUE, UINT64_MAX);
-    vkResetFences(graphics_device.device, 1, &graphics_sync.in_flight_fence);
+    vkWaitForFences(graphics_api_device.device, 1, &graphics_sync.p_in_flight_fences[graphics_frame.frame_id], VK_TRUE, UINT64_MAX);
+    vkResetFences(graphics_api_device.device, 1, &graphics_sync.p_in_flight_fences[graphics_frame.frame_id]);
     uint32_t image_id;
     vkAcquireNextImageKHR(
-        graphics_device.device, 
-        graphics_swapchain.swapchain, 
+        graphics_api_device.device, 
+        graphics_api_swapchain.swapchain, 
         UINT64_MAX, 
-        graphics_sync.image_available_semaphore, 
+        graphics_sync.p_image_available_semaphores[graphics_frame.frame_id], 
         VK_NULL_HANDLE, 
         &image_id
     );
-    vkResetCommandBuffer(graphics_cmd.graphics_buffer, 0);
-    graphicsCmbufferBegin(graphics_cmd.graphics_buffer);
-    renderPassesExecute(graphics_cmd.graphics_buffer, image_id);
-    graphicsCmbufferEnd(graphics_cmd.graphics_buffer);
+    vkResetCommandBuffer(graphics_cmbuffers.p_graphics_buffers[graphics_frame.frame_id], 0);
+    graphicsApiCmbufferBegin(graphics_cmbuffers.p_graphics_buffers[graphics_frame.frame_id]);
+    renderPassesExecute(graphics_cmbuffers.p_graphics_buffers[graphics_frame.frame_id], image_id);
+    graphicsApiCmbufferEnd(graphics_cmbuffers.p_graphics_buffers[graphics_frame.frame_id]);
 
-    VkSemaphore p_wait_semaphores[1] = {graphics_sync.image_available_semaphore};
+    VkSemaphore p_wait_semaphores[1] = {graphics_sync.p_image_available_semaphores[graphics_frame.frame_id]};
     VkPipelineStageFlags p_wait_stages[1] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-    VkSemaphore p_signal_semaphores[1] = {graphics_sync.image_finished_semaphore};
+    VkSemaphore p_signal_semaphores[1] = {graphics_sync.p_image_finished_semaphores[graphics_frame.frame_id]};
 
     // need separation to header 
     // queue submition
@@ -82,10 +86,10 @@ void graphicsDraw(double time, double delta) {
     submit_info.pWaitSemaphores = p_wait_semaphores;
     submit_info.pWaitDstStageMask = p_wait_stages;
     submit_info.commandBufferCount = 1;
-    submit_info.pCommandBuffers = &graphics_cmd.graphics_buffer;
+    submit_info.pCommandBuffers = &graphics_cmbuffers.p_graphics_buffers[graphics_frame.frame_id];
     submit_info.signalSemaphoreCount = 1;
     submit_info.pSignalSemaphores = p_signal_semaphores;
-    if (vkQueueSubmit(graphics_device.p_queues[GRAPHICS_QUEUE_ID], 1, &submit_info, graphics_sync.in_flight_fence) != VK_SUCCESS) {
+    if (vkQueueSubmit(graphics_api_device.p_queues[GRAPHICS_QUEUE_ID], 1, &submit_info, graphics_sync.p_in_flight_fences[graphics_frame.frame_id]) != VK_SUCCESS) {
         ERROR_FATAL("FAILED TO SUBMIT COMMAND BUFFER");
     }
 
@@ -95,32 +99,33 @@ void graphicsDraw(double time, double delta) {
     present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     present_info.waitSemaphoreCount = 1;
     present_info.pWaitSemaphores = p_signal_semaphores;
-    VkSwapchainKHR p_swapchains[1] = {graphics_swapchain.swapchain};
+    VkSwapchainKHR p_swapchains[1] = {graphics_api_swapchain.swapchain};
     present_info.swapchainCount = 1;
     present_info.pSwapchains = p_swapchains;
     present_info.pImageIndices = &image_id;
     present_info.pResults = NULL;
-    vkQueuePresentKHR(graphics_device.p_queues[graphics_device.p_present_indices[GRAPHICS_QUEUE_ID]], &present_info);
+    vkQueuePresentKHR(graphics_api_device.p_queues[graphics_api_device.p_present_indices[GRAPHICS_QUEUE_ID]], &present_info);
+    graphicsRenderObjectsFrameNext();
 }
 
 // runs whole graphics of application
 void graphicsRun() {
-    graphicsMainLoop(&graphicsDraw);
-    vkDeviceWaitIdle(graphics_device.device);
+    graphicsApiMainLoop(&graphicsDraw);
+    vkDeviceWaitIdle(graphics_api_device.device);
 }
 
 // ends graphics lifetime
 void graphicsTerminate() {
-    graphicsSyncTerminate();
-    graphicsCmpoolsTerminate();
-    graphicsFramebuffersTerminate();
-    graphicsPipelinesTerminate();
-    graphicsPassesTerminate();
-    graphicsSwapchainTerminate();
-    graphicsDeviceTerminate();
-    graphicsSurfaceTerminate();
-    graphicsVulkanTerminate();
-    graphicsWindowTerminate();
+    graphicsRenderObjectsTerminate();
+    graphicsApiCmpoolsTerminate();
+    graphicsApiFramebuffersTerminate();
+    graphicsApiPipelinesTerminate();
+    graphicsApiPassesTerminate();
+    graphicsApiSwapchainTerminate();
+    graphicsApiDeviceTerminate();
+    graphicsApiSurfaceTerminate();
+    graphicsApiVulkanTerminate();
+    graphicsApiWindowTerminate();
 }
 
 #endif
