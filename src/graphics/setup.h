@@ -1,8 +1,10 @@
 #ifndef _GRAPHICS_SETUP_INCLUDED
 #define _GRAPHICS_SETUP_INCLUDED
+// implements setup configuration and helper macros
 
 #include "api/api.h"
 
+// describes setup configuration
 const struct {
     uint32_t queue_count;
     const VkQueueFlagBits* p_queue_flags;
