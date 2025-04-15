@@ -163,7 +163,7 @@ bool graphicsApiCheckVulkanExtensions(
 }
 
 // starts vulkan instance lifetime (and validation layers if defined macro)
-void graphicsApiVulkanInit() {
+void graphicsApiVulkanInit(void) {
 #ifdef VALIDATION_LAYERS // check if validation layers are supported
     if(!graphicsApiCheckLayersSupport()) {
         ERROR_FATAL("VALIDATION LAYERS NOT SUPPORTED")
@@ -230,7 +230,7 @@ void graphicsApiVulkanInit() {
 }
 
 // ends vulkan instance lifetime (and validation layers if defined macro)
-void graphicsApiVulkanTerminate() {
+void graphicsApiVulkanTerminate(void) {
 #ifdef VALIDATION_LAYERS // destroy debug messenger
     graphicsApiDestroyDebugUtilsMessengerEXT(graphics_api_vulkan.instance, validation_layers.debug_messenger, NULL);
 #endif

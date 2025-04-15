@@ -159,7 +159,7 @@ void graphicsApiDeviceInit(
 }
 
 // ends graphics device lifetime
-void graphicsApiDeviceTerminate() {
+void graphicsApiDeviceTerminate(void) {
     // free queue arrays
     allocFree(graphics_api_device.p_queues);
     allocFree(graphics_api_device.p_queue_families);

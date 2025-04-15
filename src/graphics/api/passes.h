@@ -18,7 +18,7 @@ static struct {
 
 
 // returns index of last added render pass
-uint32_t graphicsApiPassesCurrentId() {
+uint32_t graphicsApiPassesCurrentId(void) {
     // flattening if statement
     uint32_t options[2] = {_graphics_api_passes_binding.iterator, _graphics_api_passes_binding.iterator - 1};
     return options[_graphics_api_passes_binding.iterator != 0];
@@ -53,7 +53,7 @@ uint32_t graphicsApiPassesAdd(
 }
 
 // ends render passes lifetime
-void graphicsApiPassesTerminate() {
+void graphicsApiPassesTerminate(void) {
     for(uint32_t i = 0; i < graphics_api_passes.pass_count; i++) {
         vkDestroyRenderPass(graphics_api_device.device, graphics_api_passes.p_passes[i], NULL);
     }
