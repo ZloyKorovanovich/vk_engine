@@ -47,6 +47,7 @@ void graphicsApiPipelinesBindRenderPass(
 }
 
 // adds pipeline to iterator location and adjusts iterator
+// returns added pipeline id
 // use argument function for creation of render pipeline and its layout
 uint32_t graphicsApiPipelinesAdd(
     void (*p_create_pipeline) (const VkDevice, const VkRenderPass, const uint32_t subpass, VkPipeline* const, VkPipelineLayout* const)

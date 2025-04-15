@@ -1,6 +1,6 @@
 #ifndef _GRAPHICS_UTILIS_STAGES_INCLUDED
 #define _GRAPHICS_UTILIS_STAGES_INCLUDED
-// provides with functions for easy pipeline creation
+// implements functions for easy pipeline creation
 
 #include "../api/api.h"
 #include "shader.h"

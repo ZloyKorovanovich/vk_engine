@@ -5,6 +5,7 @@
 #include "cmbuffers.h"
 #include "sync.h"
 
+// starts render objects lifetime
 void graphicsRenderObjectsInit(
     uint32_t queue_id
 ) {
@@ -12,6 +13,7 @@ void graphicsRenderObjectsInit(
     graphicsRenderObjectsSyncInit();
 }
 
+// ends render objects lifetime
 void graphicsRenderObjectsTerminate() {
     graphicsRenderObjectsSyncTerminate();
     graphicsRenderObjectsCmbuffersTerminate();

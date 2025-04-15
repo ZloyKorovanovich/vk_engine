@@ -1,5 +1,6 @@
 #ifndef _GRAPHICS_UTILIS_PIPELINES_INCLUDED
 #define _GRAPHICS_UTILIS_PIPELINES_INCLUDED
+// implements functions for pipeline creation
 
 #include <vulkan/vulkan.h>
 

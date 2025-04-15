@@ -1,15 +1,16 @@
 #ifndef _GRAPHICS_RENDER_OBJECTS_SYNC_INCLUDED
 #define _GRAPHICS_RENDER_OBJECTS_SYNC_INCLUDED
+// implements synchronization render objects aka semaphores and fences
 
 #include "../api/api.h"
 #include "frame.h"
 
 // describes sync objects arrays
 static struct {
-    uint32_t frames_count;
-    VkSemaphore* p_image_available_semaphores;
-    VkSemaphore* p_image_finished_semaphores;
-    VkFence* p_in_flight_fences;
+    uint32_t frames_count; // taken from graphics_frame.max_frames_in_flight
+    VkSemaphore* p_image_available_semaphores; // marks if image is available to write
+    VkSemaphore* p_image_finished_semaphores; // marks if writting to image is finished
+    VkFence* p_in_flight_fences; // cpu command fence
 } graphics_sync;
 
 // starts lifetime of sync objects

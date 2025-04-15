@@ -1,17 +1,21 @@
 #ifndef _GRAPHICS_RENDER_PASSES_TRIANGLE_INCLUDED
 #define _GRAPHICS_RENDER_PASSES_TRAINGLE_INCLUDED
+// implements trinagle render pass
+// draws rgb trinagle on screen
 
 #include <vulkan/vulkan.h>
 #include "../api/api.h"
 #include "../utilis/utilis.h"
 #include "../../utilis/error.h"
 
+// describes traingle pass information
 static struct {
     uint32_t triangle_render_pass_id;
     uint32_t traingle_pipeline_id;
-} triangle_pass;
+} graphics_triangle_pass;
 
-void renderPassesTrianglePass(
+// creates triangle render pass, used as argument for graphicsApiPassesAdd
+void graphicsRenderPassesTrianglePass(
     const VkDevice device, 
     VkRenderPass* const p_pass
 ) {
@@ -56,6 +60,7 @@ void renderPassesTrianglePass(
     }
 }
 
+// creates triangle render pipeline, used as argument for graphicsApiPipelinesAdd
 void renderPipelineTriangle(
     const VkDevice device, 
     const VkRenderPass pass, 
@@ -121,22 +126,23 @@ void renderPipelineTriangle(
     }
 }
 
-
+// creates triangle render passes and related
 void renderPassesTriangleCreate() {
-    triangle_pass.triangle_render_pass_id = graphicsApiPassesAdd(&renderPassesTrianglePass);
-    graphicsApiPipelinesBindRenderPass(triangle_pass.triangle_render_pass_id, 0);
-    triangle_pass.traingle_pipeline_id = graphicsApiPipelinesAdd(&renderPipelineTriangle);
+    graphics_triangle_pass.triangle_render_pass_id = graphicsApiPassesAdd(&graphicsRenderPassesTrianglePass);
+    graphicsApiPipelinesBindRenderPass(graphics_triangle_pass.triangle_render_pass_id, 0);
+    graphics_triangle_pass.traingle_pipeline_id = graphicsApiPipelinesAdd(&renderPipelineTriangle);
     graphicsApiFramebuffersBindRenderPass(graphicsApiPassesCurrentId());
     graphicsApiFramebuffersAdd();
 }
 
+// executes triangle render pass (draws rgb triangle)
 void renderPassesTriangleExecute(
     const VkCommandBuffer cmbuffer,
     const uint32_t frame_index
 ) {
     VkRenderPassBeginInfo pass_info = (VkRenderPassBeginInfo){0};
     pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    pass_info.renderPass = graphics_api_passes.p_passes[triangle_pass.triangle_render_pass_id];
+    pass_info.renderPass = graphics_api_passes.p_passes[graphics_triangle_pass.triangle_render_pass_id];
     pass_info.framebuffer = graphics_api_framebuffers.p_framebuffers[frame_index];
 
     pass_info.renderArea.offset = (VkOffset2D){0.0f, 0.0f};
@@ -149,7 +155,7 @@ void renderPassesTriangleExecute(
     pass_info.pClearValues = &clear_color;
     
     vkCmdBeginRenderPass(cmbuffer, &pass_info, VK_SUBPASS_CONTENTS_INLINE);
-    vkCmdBindPipeline(cmbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_api_pipelines.p_pipelines[triangle_pass.traingle_pipeline_id]);
+    vkCmdBindPipeline(cmbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_api_pipelines.p_pipelines[graphics_triangle_pass.traingle_pipeline_id]);
     vkCmdSetViewport(cmbuffer, 0, 1, &graphics_api_swapchain.viewport);
     vkCmdSetScissor(cmbuffer, 0, 1, &graphics_api_swapchain.scissors);
 

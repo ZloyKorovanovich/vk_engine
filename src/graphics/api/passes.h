@@ -39,6 +39,7 @@ void graphicsApiPassesInit(
 }
 
 // adds render pass to iterator location and ajusts iterator
+// returns added pass id
 // use argument function for creating render pass
 uint32_t graphicsApiPassesAdd(
     void (*p_create_pass) (const VkDevice, VkRenderPass* const)

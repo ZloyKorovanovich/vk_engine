@@ -7,6 +7,7 @@
 #include "render_objects/render_objects.h"
 #include "render_passes/render_passes.h"
 
+// describes render queues requested from gpu
 const struct {
     const uint32_t queue_count;
     const VkQueueFlagBits* p_queue_flags;
@@ -15,7 +16,7 @@ const struct {
     .p_queue_flags = (VkQueueFlagBits[]){VK_QUEUE_GRAPHICS_BIT, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_TRANSFER_BIT}
 };
 
-// helpers
+// queue management helpers
 #define GRAPHICS_QUEUE_ID 0
 #define COMPUTE_QUEUE_ID 1
 #define TRANSFER_QUEUE_ID 2

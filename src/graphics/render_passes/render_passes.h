@@ -1,5 +1,6 @@
 #ifndef _GRAPHICS_RENDER_PASSESES_INCLUDED
 #define _GRAPHICS_RENDER_PASSESES_INCLUDED
+// implements render passes usage
 
 #include <vulkan/vulkan.h>
 
@@ -14,6 +15,7 @@ void renderPassesCreate() {
     renderPassesTriangleCreate();
 }
 
+// executes render passes
 void renderPassesExecute(
     VkCommandBuffer cmbuffer, 
     uint32_t frame_index

@@ -1,14 +1,17 @@
 #ifndef _GRAPHICS_RENDER_OBJECTS_CMBUFFERS_INCLUDED
-#define _GRAPHICS_RENDER_OBJECTS_CMBUFFERS__INCLUDED
+#define _GRAPHICS_RENDER_OBJECTS_CMBUFFERS_INCLUDED
+// implements cmbuffers render objects
 
 #include "frame.h"
 #include "../api/command.h"
 
+// describes command buffers arrays
 struct {
     uint32_t buffer_count;
     VkCommandBuffer* p_graphics_buffers;
 } graphics_cmbuffers;
 
+// starts cmbuffers lifetime
 void graphicsRenderObjectsCmbuffersInit(
     uint32_t pool_id
 ) {
@@ -22,6 +25,7 @@ void graphicsRenderObjectsCmbuffersInit(
     );
 }
 
+// ends cmbuffers lifetime
 void graphicsRenderObjectsCmbuffersTerminate() {
     allocFree(graphics_cmbuffers.p_graphics_buffers);
 }
