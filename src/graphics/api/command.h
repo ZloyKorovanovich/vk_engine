@@ -12,7 +12,7 @@ static struct {
 } graphics_api_cmpools;
 
 // starts cmpools lifetime
-void graphicsApiCmpoolsInit() {
+void graphicsApiCmpoolsInit(void) {
     // allocate cmpools, 1 cmpool per queue
     graphics_api_cmpools.cmpool_count = graphics_api_device.queue_count;
     graphics_api_cmpools.p_cmpools = (VkCommandPool*)allocMalloc(graphics_api_cmpools.cmpool_count * sizeof(VkCommandPool));
@@ -30,7 +30,7 @@ void graphicsApiCmpoolsInit() {
 }
 
 // ends cmpools lifetime
-void graphicsApiCmpoolsTerminate() {
+void graphicsApiCmpoolsTerminate(void) {
     for(uint32_t i = 0; i < graphics_api_cmpools.cmpool_count; i++) {
         vkDestroyCommandPool(graphics_api_device.device, graphics_api_cmpools.p_cmpools[i], NULL);
     }

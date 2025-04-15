@@ -13,6 +13,7 @@
 // describes window
 static struct {
     GLFWwindow* p_window;
+    void (*p_on_resize)(uint32_t width, uint32_t height);
 } graphics_api_window;
 
 
@@ -36,18 +37,35 @@ bool graphicsApiCheckWindowExtensions(
     return true;
 }
 
+static void graphicsApiWindowResizeCallback(
+    GLFWwindow* p_window, 
+    int width, 
+    int height
+) {
+    (*graphics_api_window.p_on_resize)((uint32_t)width, (uint32_t)height);
+}
 
 // starts window lifetime
 void graphicsApiWindowInit(
-    const uint32_t width, 
+    const uint32_t width,
     const uint32_t height,
-    const char* name
+    const char* name,
+    const bool resizable,
+    const bool fullscreen,
+    void (*p_on_resize)(uint32_t width, uint32_t height)
 ) {
     glfwInit();
     // window parameters
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-    graphics_api_window.p_window = glfwCreateWindow(width, height, name, NULL, NULL);
+    glfwWindowHint(GLFW_RESIZABLE, (int)resizable);
+    if(fullscreen) {
+        graphics_api_window.p_window = glfwCreateWindow(width, height, name, glfwGetPrimaryMonitor(), NULL);
+    }
+    else {
+        graphics_api_window.p_window = glfwCreateWindow(width, height, name, NULL, NULL);
+    }
+    glfwSetFramebufferSizeCallback(graphics_api_window.p_window, graphicsApiWindowResizeCallback);
+    graphics_api_window.p_on_resize = p_on_resize;
 }
 
 // tuns main loop of glfw (graphics game loop function)
@@ -61,7 +79,7 @@ void graphicsApiMainLoop(
 }
 
 // ends window lifetime
-void graphicsApiWindowTerminate() {
+void graphicsApiWindowTerminate(void) {
     glfwDestroyWindow(graphics_api_window.p_window);
     glfwTerminate();
 }

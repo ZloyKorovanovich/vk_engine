@@ -3,24 +3,37 @@
 // implements render passes usage
 
 #include <vulkan/vulkan.h>
-
 #include "triangle.h"
 
 // required for passes allocation
-const uint32_t passes_count = 1; 
-
-// creates and adds all render passes
-// change this function if you want to add custom pass or remove one
-void renderPassesCreate() {
-    renderPassesTriangleCreate();
-}
+const struct {
+    uint32_t passes_count; 
+    uint32_t pipelines_count;
+} graphics_render_passes = {
+    .passes_count = 1,
+    .pipelines_count = 1
+};
 
 // executes render passes
-void renderPassesExecute(
+void graphicsRenderPassesExecute(
     VkCommandBuffer cmbuffer, 
     uint32_t frame_index
 ) {
-    renderPassesTriangleExecute(cmbuffer, frame_index);
+    graphicsRenderPassesTriangleExecute(cmbuffer, frame_index);
+}
+
+void graphicsRenderPassesInit(void) {
+    graphicsApiPassesInit(graphics_render_passes.passes_count);
+    graphicsApiPipelinesInit(graphics_render_passes.pipelines_count);
+    graphicsApiFramebuffersInit(graphics_render_passes.passes_count);
+    
+    graphicsRenderPassesTriangleCreate();
+}
+
+void grpahicsRnederPassesTerminate(void) {
+    graphicsApiPassesTerminate();
+    graphicsApiFramebuffersTerminate();
+    graphicsApiPipelinesTerminate();
 }
 
 #endif

@@ -50,7 +50,7 @@ VkPresentModeKHR graphicsApiSwapchainDefaultSelectMode(
 }
 
 // updates viewport and scissors settings
-void graphicsApiSurfaceUpdateViewport() {
+void graphicsApiSurfaceUpdateViewport(void) {
     graphics_api_swapchain.viewport.x = 0.0f;
     graphics_api_swapchain.viewport.y = 0.0f;
     graphics_api_swapchain.viewport.width = (float)graphics_api_swapchain.extent.width;
@@ -63,7 +63,7 @@ void graphicsApiSurfaceUpdateViewport() {
 }
 
 // creates swapcahin images
-void graphicsApiSwapchainCreateImages() {
+void graphicsApiSwapchainCreateImages(void) {
     vkGetSwapchainImagesKHR(
         graphics_api_device.device,
         graphics_api_swapchain.swapchain,
@@ -105,7 +105,7 @@ void graphicsApiSwapchainCreateImages() {
 }
 
 // destroy swapchain images
-void graphicsApiSwapchainDestroyImages() {
+void graphicsApiSwapchainDestroyImages(void) {
     for (uint32_t i = 0; i < graphics_api_swapchain.image_count; i++) {
         vkDestroyImageView(graphics_api_device.device, graphics_api_swapchain.p_views[i], NULL);
     }
@@ -192,7 +192,7 @@ void graphicsApiSwapchainInit(
 }
 
 // ends swapchain lifetime
-void graphicsApiSwapchainTerminate() {
+void graphicsApiSwapchainTerminate(void) {
     graphicsApiSwapchainDestroyImages();
     vkDestroySwapchainKHR(graphics_api_device.device, graphics_api_swapchain.swapchain, NULL);
 }

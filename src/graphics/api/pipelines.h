@@ -68,7 +68,7 @@ uint32_t graphicsApiPipelinesAdd(
 }
 
 // ends pipelines lifetime
-void graphicsApiPipelinesTerminate() {
+void graphicsApiPipelinesTerminate(void) {
     for(uint32_t i = 0; i < graphics_api_pipelines.pipeline_count; i++) {
         vkDestroyPipeline(graphics_api_device.device, graphics_api_pipelines.p_pipelines[i], NULL);
         vkDestroyPipelineLayout(graphics_api_device.device, graphics_api_pipelines.p_layouts[i], NULL);

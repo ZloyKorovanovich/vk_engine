@@ -5,7 +5,7 @@
 #include <vulkan/vulkan.h>
 
 // returns default(empty) configuration of pipeline layout info
-VkPipelineLayoutCreateInfo graphicsUtilisPipelineLayout() {
+VkPipelineLayoutCreateInfo graphicsUtilisPipelineLayout(void) {
     VkPipelineLayoutCreateInfo create_info = (VkPipelineLayoutCreateInfo){0};
     create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     create_info.setLayoutCount = 0;

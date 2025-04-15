@@ -40,7 +40,7 @@ void graphicsApiFramebuffersBindRenderPass(
 }
 
 // adds framebuffers to iterator location and adjusts iterator
-void graphicsApiFramebuffersAdd() {
+void graphicsApiFramebuffersAdd(void) {
     if(_graphics_api_frambuffers_binding.iterator >= graphics_api_framebuffers.framebuffer_count) {
         ERROR_FATAL("TRYING TO ADD NOT ALLOCATED RENDER PIPELINES")
     }
@@ -64,7 +64,7 @@ void graphicsApiFramebuffersAdd() {
 }
 
 // ends framebuffers lifetime
-void graphicsApiFramebuffersTerminate() {
+void graphicsApiFramebuffersTerminate(void) {
     for(uint32_t i = 0; i < graphics_api_framebuffers.framebuffer_count; i++) {
         vkDestroyFramebuffer(graphics_api_device.device, graphics_api_framebuffers.p_framebuffers[i], NULL);
     }

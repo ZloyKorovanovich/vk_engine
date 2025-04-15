@@ -61,7 +61,7 @@ void graphicsRenderPassesTrianglePass(
 }
 
 // creates triangle render pipeline, used as argument for graphicsApiPipelinesAdd
-void renderPipelineTriangle(
+void grapicsRenderPassesPipelineTriangle(
     const VkDevice device, 
     const VkRenderPass pass, 
     const uint32_t subpass, 
@@ -127,16 +127,16 @@ void renderPipelineTriangle(
 }
 
 // creates triangle render passes and related
-void renderPassesTriangleCreate() {
+void graphicsRenderPassesTriangleCreate() {
     graphics_triangle_pass.triangle_render_pass_id = graphicsApiPassesAdd(&graphicsRenderPassesTrianglePass);
     graphicsApiPipelinesBindRenderPass(graphics_triangle_pass.triangle_render_pass_id, 0);
-    graphics_triangle_pass.traingle_pipeline_id = graphicsApiPipelinesAdd(&renderPipelineTriangle);
+    graphics_triangle_pass.traingle_pipeline_id = graphicsApiPipelinesAdd(&grapicsRenderPassesPipelineTriangle);
     graphicsApiFramebuffersBindRenderPass(graphicsApiPassesCurrentId());
     graphicsApiFramebuffersAdd();
 }
 
 // executes triangle render pass (draws rgb triangle)
-void renderPassesTriangleExecute(
+void graphicsRenderPassesTriangleExecute(
     const VkCommandBuffer cmbuffer,
     const uint32_t frame_index
 ) {

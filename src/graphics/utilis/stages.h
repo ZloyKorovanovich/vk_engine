@@ -34,7 +34,7 @@ bool graphicsUtilisStagesShader(
 }
 
 // returns default configuration of pipeline viewport state create info
-VkPipelineViewportStateCreateInfo graphicsUtilisStagesViewport() {
+VkPipelineViewportStateCreateInfo graphicsUtilisStagesViewport(void) {
     VkPipelineViewportStateCreateInfo create_info = (VkPipelineViewportStateCreateInfo){0};
     create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
     create_info.viewportCount = 1;
@@ -46,7 +46,7 @@ VkPipelineViewportStateCreateInfo graphicsUtilisStagesViewport() {
 };
 
 // returns default configuration of pipeline dynamic state create info
-VkPipelineDynamicStateCreateInfo graphicsUtilisStagesDynamic() {
+VkPipelineDynamicStateCreateInfo graphicsUtilisStagesDynamic(void) {
     // constant-like declaration, but inside of function
     // constant array of dynamic states
     static uint32_t dynamic_state_count = 2; 
@@ -60,7 +60,7 @@ VkPipelineDynamicStateCreateInfo graphicsUtilisStagesDynamic() {
 };
 
 // returns default configuration of pipeline rasterization state create info
-VkPipelineRasterizationStateCreateInfo graphicsUtilisStagesRasterization() {
+VkPipelineRasterizationStateCreateInfo graphicsUtilisStagesRasterization(void) {
     VkPipelineRasterizationStateCreateInfo create_info = (VkPipelineRasterizationStateCreateInfo){0};
     create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
     create_info.depthClampEnable = VK_FALSE;
@@ -77,7 +77,7 @@ VkPipelineRasterizationStateCreateInfo graphicsUtilisStagesRasterization() {
 };
 
 // returns default configuration of pipeline vertex input state create info
-VkPipelineVertexInputStateCreateInfo graphicsUtilisStagesVertexInput() {
+VkPipelineVertexInputStateCreateInfo graphicsUtilisStagesVertexInput(void) {
     VkPipelineVertexInputStateCreateInfo create_info = (VkPipelineVertexInputStateCreateInfo){0};
     create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     create_info.vertexBindingDescriptionCount = 0;
@@ -88,7 +88,7 @@ VkPipelineVertexInputStateCreateInfo graphicsUtilisStagesVertexInput() {
 }
 
 // returns default configuration of pipeline assembly state create info
-VkPipelineInputAssemblyStateCreateInfo graphicsUtilisStagesAssembly() {
+VkPipelineInputAssemblyStateCreateInfo graphicsUtilisStagesAssembly(void) {
     VkPipelineInputAssemblyStateCreateInfo create_info = (VkPipelineInputAssemblyStateCreateInfo){0};
     create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     create_info.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -97,7 +97,7 @@ VkPipelineInputAssemblyStateCreateInfo graphicsUtilisStagesAssembly() {
 };
 
 // returns default configuration of pipeline multisample state create info
-VkPipelineMultisampleStateCreateInfo graphicsUtilisStagesMultisample() {
+VkPipelineMultisampleStateCreateInfo graphicsUtilisStagesMultisample(void) {
     VkPipelineMultisampleStateCreateInfo create_info = (VkPipelineMultisampleStateCreateInfo){0};
     create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     create_info.sampleShadingEnable = VK_FALSE;
@@ -110,7 +110,7 @@ VkPipelineMultisampleStateCreateInfo graphicsUtilisStagesMultisample() {
 };
 
 // returns default configuration of pipeline viewport blend create info
-VkPipelineColorBlendStateCreateInfo graphicsUtilisStagesBlend() {
+VkPipelineColorBlendStateCreateInfo graphicsUtilisStagesBlend(void) {
     static VkPipelineColorBlendAttachmentState color_blend_state = {
         .colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT,
         .blendEnable = VK_FALSE,

@@ -10,14 +10,14 @@ static struct {
 } graphics_api_surface;
 
 // starts surface lifetime
-void graphicsApiSurfaceInit() {
+void graphicsApiSurfaceInit(void) {
     if (glfwCreateWindowSurface(graphics_api_vulkan.instance, graphics_api_window.p_window, NULL, &graphics_api_surface.surface) != VK_SUCCESS) {
         ERROR_FATAL("FAILED TO CREATE VULKAN SURFACE")
     }
 }
 
 // ends surface lifetime
-void graphicsApiSurfaceTerminate() {
+void graphicsApiSurfaceTerminate(void) {
     vkDestroySurfaceKHR(graphics_api_vulkan.instance, graphics_api_surface.surface, NULL);
 }
 
