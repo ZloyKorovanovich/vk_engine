@@ -4,8 +4,22 @@
 // implements modifiable general graphics control
 
 #include "api/api.h"
-#include "frame_render/frame_render.h"
+#include "render_objects/render_objects.h"
 #include "render_passes/render_passes.h"
+
+const struct {
+    const uint32_t queue_count;
+    const VkQueueFlagBits* p_queue_flags;
+} graphics_required_queues = {
+    .queue_count = 3,
+    .p_queue_flags = (VkQueueFlagBits[]){VK_QUEUE_GRAPHICS_BIT, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_TRANSFER_BIT}
+};
+
+// helpers
+#define GRAPHICS_QUEUE_ID 0
+#define COMPUTE_QUEUE_ID 1
+#define TRANSFER_QUEUE_ID 2
+#define PRESENT_QUEUE_ID (graphics_required_queues.queue_count + 1)
 
 // starts graphics lifetime
 void graphicsInit() {
@@ -35,12 +49,10 @@ void graphicsInit() {
     graphicsApiPipelinesInit(1);
     graphicsApiFramebuffersInit(1);
     renderPassesCreate();
-    // command buffers and command pools
+    // command pools
     graphicsApiCmpoolsInit();
-    //BIG PROBLEMS HERE
-    graphicsCmdInit();
-    // sync objects
-    graphicsSyncInit();
+
+    graphicsRenderObjectsInit(GRAPHICS_QUEUE_ID);
 }
 
 // draw frame functions from interface meant to be inside of graphicsMainLoop
@@ -56,10 +68,10 @@ void graphicsDraw(double time, double delta) {
         VK_NULL_HANDLE, 
         &image_id
     );
-    vkResetCommandBuffer(graphics_cmd.p_graphics_buffers[graphics_frame.frame_id], 0);
-    graphicsApiCmbufferBegin(graphics_cmd.p_graphics_buffers[graphics_frame.frame_id]);
-    renderPassesExecute(graphics_cmd.p_graphics_buffers[graphics_frame.frame_id], image_id);
-    graphicsApiCmbufferEnd(graphics_cmd.p_graphics_buffers[graphics_frame.frame_id]);
+    vkResetCommandBuffer(graphics_cmbuffers.p_graphics_buffers[graphics_frame.frame_id], 0);
+    graphicsApiCmbufferBegin(graphics_cmbuffers.p_graphics_buffers[graphics_frame.frame_id]);
+    renderPassesExecute(graphics_cmbuffers.p_graphics_buffers[graphics_frame.frame_id], image_id);
+    graphicsApiCmbufferEnd(graphics_cmbuffers.p_graphics_buffers[graphics_frame.frame_id]);
 
     VkSemaphore p_wait_semaphores[1] = {graphics_sync.p_image_available_semaphores[graphics_frame.frame_id]};
     VkPipelineStageFlags p_wait_stages[1] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
@@ -73,7 +85,7 @@ void graphicsDraw(double time, double delta) {
     submit_info.pWaitSemaphores = p_wait_semaphores;
     submit_info.pWaitDstStageMask = p_wait_stages;
     submit_info.commandBufferCount = 1;
-    submit_info.pCommandBuffers = &graphics_cmd.p_graphics_buffers[graphics_frame.frame_id];
+    submit_info.pCommandBuffers = &graphics_cmbuffers.p_graphics_buffers[graphics_frame.frame_id];
     submit_info.signalSemaphoreCount = 1;
     submit_info.pSignalSemaphores = p_signal_semaphores;
     if (vkQueueSubmit(graphics_api_device.p_queues[GRAPHICS_QUEUE_ID], 1, &submit_info, graphics_sync.p_in_flight_fences[graphics_frame.frame_id]) != VK_SUCCESS) {
@@ -92,7 +104,7 @@ void graphicsDraw(double time, double delta) {
     present_info.pImageIndices = &image_id;
     present_info.pResults = NULL;
     vkQueuePresentKHR(graphics_api_device.p_queues[graphics_api_device.p_present_indices[GRAPHICS_QUEUE_ID]], &present_info);
-    graphicsFrameNext();
+    graphicsRenderObjectsFrameNext();
 }
 
 // runs whole graphics of application
@@ -103,8 +115,7 @@ void graphicsRun() {
 
 // ends graphics lifetime
 void graphicsTerminate() {
-    graphicsSyncTerminate();
-    graphicsCmdTerminate();
+    graphicsRenderObjectsTerminate();
     graphicsApiCmpoolsTerminate();
     graphicsApiFramebuffersTerminate();
     graphicsApiPipelinesTerminate();

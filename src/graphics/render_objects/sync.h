@@ -1,32 +1,8 @@
-#ifndef _GRAPHICS_RENDER_INCLUDED
-#define _GRAPHICS_RENDER_INCLUDED
+#ifndef _GRAPHICS_RENDER_OBJECTS_SYNC_INCLUDED
+#define _GRAPHICS_RENDER_OBJECTS_SYNC_INCLUDED
 
-// helpers
-#define GRAPHICS_QUEUE_ID 0
-#define COMPUTE_QUEUE_ID 1
-#define TRANSFER_QUEUE_ID 2
-#define PRESENT_QUEUE_ID (graphics_required_queues.queue_count + 1)
-
-const struct {
-    const uint32_t queue_count;
-    const VkQueueFlagBits* p_queue_flags;
-} graphics_required_queues = {
-    .queue_count = 3,
-    .p_queue_flags = (VkQueueFlagBits[]){VK_QUEUE_GRAPHICS_BIT, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_TRANSFER_BIT}
-};
-
-static struct {
-    const uint32_t max_frames_in_flight;
-    uint32_t frame_id;
-} graphics_frame = {
-    .max_frames_in_flight = 2,
-    .frame_id = 0
-};
-
-static struct {
-    uint32_t buffer_count;
-    VkCommandBuffer* p_graphics_buffers;
-} graphics_cmd;
+#include "../api/api.h"
+#include "frame.h"
 
 // describes sync objects arrays
 static struct {
@@ -36,29 +12,8 @@ static struct {
     VkFence* p_in_flight_fences;
 } graphics_sync;
 
-
-void graphicsFrameNext() {
-    graphics_frame.frame_id = (graphics_frame.frame_id + 1) % graphics_frame.max_frames_in_flight;
-}
-
-void graphicsCmdInit() {
-    // allocate buffer arrays for all frames
-    graphics_cmd.buffer_count = graphics_frame.max_frames_in_flight;
-    graphics_cmd.p_graphics_buffers = (VkCommandBuffer*)allocMalloc(graphics_cmd.buffer_count * sizeof(VkCommandBuffer));
-    graphicsApiCmbufferCreate(
-        GRAPHICS_QUEUE_ID,
-        graphics_cmd.buffer_count,
-        graphics_cmd.p_graphics_buffers
-    );
-}
-
-void graphicsCmdTerminate() {
-    allocFree(graphics_cmd.p_graphics_buffers);
-}
-
-
 // starts lifetime of sync objects
-void graphicsSyncInit() {
+void graphicsRenderObjectsSyncInit() {
     // allocate sync objects
     graphics_sync.frames_count = graphics_frame.max_frames_in_flight;
     graphics_sync.p_image_available_semaphores = (VkSemaphore*)allocMalloc(graphics_sync.frames_count * sizeof(VkSemaphore));
@@ -82,7 +37,7 @@ void graphicsSyncInit() {
 }
 
 // ends lifetime of sync objects
-void graphicsSyncTerminate() {
+void graphicsRenderObjectsSyncTerminate() {
     for(uint32_t i = 0; i < graphics_sync.frames_count; i++) {
         vkDestroySemaphore(graphics_api_device.device, graphics_sync.p_image_available_semaphores[i], NULL);
         vkDestroySemaphore(graphics_api_device.device, graphics_sync.p_image_finished_semaphores[i], NULL);
