@@ -22,6 +22,7 @@ void graphicsRenderPassesExecute(
     graphicsRenderPassesTriangleExecute(cmbuffer, frame_index);
 }
 
+// starts render passes lifetime
 void graphicsRenderPassesInit(void) {
     graphicsApiPassesInit(graphics_render_passes.passes_count);
     graphicsApiPipelinesInit(graphics_render_passes.pipelines_count);
@@ -30,6 +31,7 @@ void graphicsRenderPassesInit(void) {
     graphicsRenderPassesTriangleCreate();
 }
 
+// ends render passes lifetime
 void grpahicsRnederPassesTerminate(void) {
     graphicsApiPassesTerminate();
     graphicsApiFramebuffersTerminate();

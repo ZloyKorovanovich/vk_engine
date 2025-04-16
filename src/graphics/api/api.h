@@ -8,8 +8,6 @@
 // ...Init(), that starts lifetime of module
 // ...Terminate(), that ends lifetime of module
 
-#define VALIDATION_LAYERS // enables debug utilit for vulkan api
-
 #include "window.h"
 #include "vulkan.h"
 #include "surface.h"

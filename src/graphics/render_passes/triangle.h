@@ -127,7 +127,7 @@ void grapicsRenderPassesPipelineTriangle(
 }
 
 // creates triangle render passes and related
-void graphicsRenderPassesTriangleCreate() {
+void graphicsRenderPassesTriangleCreate(void) {
     graphics_triangle_pass.triangle_render_pass_id = graphicsApiPassesAdd(&graphicsRenderPassesTrianglePass);
     graphicsApiPipelinesBindRenderPass(graphics_triangle_pass.triangle_render_pass_id, 0);
     graphics_triangle_pass.traingle_pipeline_id = graphicsApiPipelinesAdd(&grapicsRenderPassesPipelineTriangle);
