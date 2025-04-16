@@ -1,13 +1,14 @@
-#ifndef _RENDER_PASS_PIPELINE_STAGES_INCLUDED
-#define _RENDER_PASS_PIPELINE_STAGES_INCLUDED
-// provides with functions for easy pipeline creation
+#ifndef _GRAPHICS_UTILIS_STAGES_INCLUDED
+#define _GRAPHICS_UTILIS_STAGES_INCLUDED
+// implements functions for easy pipeline creation
 
-#include "../setup/setup.h"
+#include "../api/api.h"
+#include "shader.h"
 
 // crteates shader stage and shader module
 // shader module should be cared untill pipeline is created
 // returns true if shader was sucessfuly read and module was created
-bool renderPassesShaderStage(
+bool graphicsUtilisStagesShader(
     const char* p_entry_name, // name for entry function (usually "main")
     const char* p_shader_file, // local shader path to file
     const VkShaderStageFlagBits flag, // stage flag (vertex, fragment, etc.)
@@ -16,10 +17,10 @@ bool renderPassesShaderStage(
 ) {
     size_t code_size;
     unsigned char* p_code;
-    if(!graphicsShaderRead(p_shader_file, &code_size, &p_code)) {
+    if(!graphicsUtilisShaderRead(p_shader_file, &code_size, &p_code)) {
         return false; // failed to read shader
     }
-    if(!graphicsShaderModuleCreate(code_size, (uint32_t*)p_code, p_module)) {
+    if(!graphicsUtilisShaderModuleCreate(code_size, (uint32_t*)p_code, p_module)) {
         return false; // failed to create module
     }
     allocFree(p_code); // now carried in shader module
@@ -33,19 +34,19 @@ bool renderPassesShaderStage(
 }
 
 // returns default configuration of pipeline viewport state create info
-VkPipelineViewportStateCreateInfo renderPassesDefaultViewportState() {
+VkPipelineViewportStateCreateInfo graphicsUtilisStagesViewport(void) {
     VkPipelineViewportStateCreateInfo create_info = (VkPipelineViewportStateCreateInfo){0};
     create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
     create_info.viewportCount = 1;
     create_info.viewportCount = 1;
-    create_info.pViewports = &graphics_swapchain.viewport;
+    create_info.pViewports = &graphics_api_swapchain.viewport;
     create_info.scissorCount = 1;
-    create_info.pScissors = &graphics_swapchain.scissors;
+    create_info.pScissors = &graphics_api_swapchain.scissors;
     return create_info;
 };
 
 // returns default configuration of pipeline dynamic state create info
-VkPipelineDynamicStateCreateInfo renderPassesDefaultDynamicState() {
+VkPipelineDynamicStateCreateInfo graphicsUtilisStagesDynamic(void) {
     // constant-like declaration, but inside of function
     // constant array of dynamic states
     static uint32_t dynamic_state_count = 2; 
@@ -59,7 +60,7 @@ VkPipelineDynamicStateCreateInfo renderPassesDefaultDynamicState() {
 };
 
 // returns default configuration of pipeline rasterization state create info
-VkPipelineRasterizationStateCreateInfo renderPassesDefaultRasterizationState() {
+VkPipelineRasterizationStateCreateInfo graphicsUtilisStagesRasterization(void) {
     VkPipelineRasterizationStateCreateInfo create_info = (VkPipelineRasterizationStateCreateInfo){0};
     create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
     create_info.depthClampEnable = VK_FALSE;
@@ -76,7 +77,7 @@ VkPipelineRasterizationStateCreateInfo renderPassesDefaultRasterizationState() {
 };
 
 // returns default configuration of pipeline vertex input state create info
-VkPipelineVertexInputStateCreateInfo renderPassesDefaultVertexInputState() {
+VkPipelineVertexInputStateCreateInfo graphicsUtilisStagesVertexInput(void) {
     VkPipelineVertexInputStateCreateInfo create_info = (VkPipelineVertexInputStateCreateInfo){0};
     create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     create_info.vertexBindingDescriptionCount = 0;
@@ -87,7 +88,7 @@ VkPipelineVertexInputStateCreateInfo renderPassesDefaultVertexInputState() {
 }
 
 // returns default configuration of pipeline assembly state create info
-VkPipelineInputAssemblyStateCreateInfo renderPassesDefaultAssemblyState() {
+VkPipelineInputAssemblyStateCreateInfo graphicsUtilisStagesAssembly(void) {
     VkPipelineInputAssemblyStateCreateInfo create_info = (VkPipelineInputAssemblyStateCreateInfo){0};
     create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     create_info.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -96,7 +97,7 @@ VkPipelineInputAssemblyStateCreateInfo renderPassesDefaultAssemblyState() {
 };
 
 // returns default configuration of pipeline multisample state create info
-VkPipelineMultisampleStateCreateInfo renderPassesDefaultMultisampleState() {
+VkPipelineMultisampleStateCreateInfo graphicsUtilisStagesMultisample(void) {
     VkPipelineMultisampleStateCreateInfo create_info = (VkPipelineMultisampleStateCreateInfo){0};
     create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     create_info.sampleShadingEnable = VK_FALSE;
@@ -109,7 +110,7 @@ VkPipelineMultisampleStateCreateInfo renderPassesDefaultMultisampleState() {
 };
 
 // returns default configuration of pipeline viewport blend create info
-VkPipelineColorBlendStateCreateInfo renderPassesDefaultBlendState() {
+VkPipelineColorBlendStateCreateInfo graphicsUtilisStagesBlend(void) {
     static VkPipelineColorBlendAttachmentState color_blend_state = {
         .colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT,
         .blendEnable = VK_FALSE,
@@ -132,17 +133,5 @@ VkPipelineColorBlendStateCreateInfo renderPassesDefaultBlendState() {
     create_info.blendConstants[3] = 0.0f;
     return create_info;
 };
-
-// returns default(empty) configuration of pipeline layout info
-VkPipelineLayoutCreateInfo renderPassesDefaultPipelineLayout() {
-    VkPipelineLayoutCreateInfo create_info = (VkPipelineLayoutCreateInfo){0};
-    create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    create_info.setLayoutCount = 0;
-    create_info.pSetLayouts = NULL;
-    create_info.pushConstantRangeCount = 0;
-    create_info.pPushConstantRanges = NULL;
-    return create_info;
-};
-
 
 #endif

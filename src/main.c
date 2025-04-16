@@ -1,12 +1,17 @@
+#define ALLOCATION_DEBUG // enables debug utilis for allocation
+#define VALIDATION_LAYERS // enables debug utilit for vulkan api
+
 #include "utilis/alloc.h"
 #include "resources/resources.h"
 #include "graphics/graphics.h"
 
 int main(int argv, char* argc[]) {
+    allocTableInit(1024);
     resourcesRun();
     graphicsInit();
-    graphicsRun();
+    graphicsMainLoop();
     graphicsTerminate();
-    printf("total allocations: %llu end allocations: %llu \n", alloc_info.total_allocations, alloc_info.current_allocations);
+    allocTableTerminate();
+    
     return 0;
 }

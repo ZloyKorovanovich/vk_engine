@@ -1,5 +1,5 @@
-#ifndef _GRAPHICS_VULKAN_INCLUDED
-#define _GRAPHICS_VULKAN_INCLUDED
+#ifndef _GRAPHICS_API_VULKAN_INCLUDED
+#define _GRAPHICS_API_VULKAN_INCLUDED
 // implements vulkan instance an validation layers
 // do "#define VALIDATION_LAYERS" before this header included to turn layers on
 
@@ -16,7 +16,7 @@
 // describes vulkan instance
 static struct {
     VkInstance instance;
-} graphics_vulkan;
+} graphics_api_vulkan;
 
 // validation layers-only
 #ifdef VALIDATION_LAYERS
@@ -112,14 +112,14 @@ VkDebugUtilsMessengerCreateInfoEXT graphicsApiDebugMessengerCreateInfo() {
 // creates actual debug messnger
 void graphicsApiSetupDebugMessenger() {
     VkDebugUtilsMessengerCreateInfoEXT create_info = graphicsApiDebugMessengerCreateInfo();
-    if (graphicsApiCreateDebugUtilsMessengerEXT(graphics_vulkan.instance, &create_info, NULL, &validation_layers.debug_messenger) != VK_SUCCESS) {
+    if (graphicsApiCreateDebugUtilsMessengerEXT(graphics_api_vulkan.instance, &create_info, NULL, &validation_layers.debug_messenger) != VK_SUCCESS) {
         ERROR_FATAL("FAILED TO CREATE DEBUG MESSENGER!")
     }
 }
 #endif
 
 // returns true if extension is supported by vulkan configuration, else false
-bool graphicsCheckVulkanExtension(
+bool graphicsApiCheckVulkanExtension(
     const char* p_extension
 ) {
     // get supproted vulkan extensions
@@ -137,7 +137,7 @@ bool graphicsCheckVulkanExtension(
 }
 
 // returns true if all of the extensions are supported by vulkan configuration, else false
-bool graphicsCheckVulkanExtensions(
+bool graphicsApiCheckVulkanExtensions(
     const uint32_t extension_count,
     const char** pp_extensions
 ) {
@@ -163,7 +163,7 @@ bool graphicsCheckVulkanExtensions(
 }
 
 // starts vulkan instance lifetime (and validation layers if defined macro)
-void graphicsVulkanInit() {
+void graphicsApiVulkanInit(void) {
 #ifdef VALIDATION_LAYERS // check if validation layers are supported
     if(!graphicsApiCheckLayersSupport()) {
         ERROR_FATAL("VALIDATION LAYERS NOT SUPPORTED")
@@ -199,7 +199,7 @@ void graphicsVulkanInit() {
     pp_required_extensions[glfw_extension_count] = VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME;
 #endif
     // check if required extensions are supproted, thats crusial for program
-    if(!graphicsCheckVulkanExtensions(
+    if(!graphicsApiCheckVulkanExtensions(
         required_extension_count, 
         pp_required_extensions
     )) {
@@ -220,7 +220,7 @@ void graphicsVulkanInit() {
     create_info.pNext = NULL;
 #endif
     // creates vulkan instance
-    if (vkCreateInstance(&create_info, NULL, &graphics_vulkan.instance) != VK_SUCCESS) {
+    if (vkCreateInstance(&create_info, NULL, &graphics_api_vulkan.instance) != VK_SUCCESS) {
         ERROR_FATAL("FAILED TO CREATE VULKAN INSTANCE")
     }
 
@@ -230,11 +230,11 @@ void graphicsVulkanInit() {
 }
 
 // ends vulkan instance lifetime (and validation layers if defined macro)
-void graphicsVulkanTerminate() {
+void graphicsApiVulkanTerminate(void) {
 #ifdef VALIDATION_LAYERS // destroy debug messenger
-    graphicsApiDestroyDebugUtilsMessengerEXT(graphics_vulkan.instance, validation_layers.debug_messenger, NULL);
+    graphicsApiDestroyDebugUtilsMessengerEXT(graphics_api_vulkan.instance, validation_layers.debug_messenger, NULL);
 #endif
-    vkDestroyInstance(graphics_vulkan.instance, NULL);
+    vkDestroyInstance(graphics_api_vulkan.instance, NULL);
 }
 
 #endif
